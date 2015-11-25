@@ -11,8 +11,8 @@ var conf = require('./config'),
     path = require('path'),
     OAuth2 = require('oauth').OAuth2;
 
-var twitter = {};
-var taskManager = {};
+var twitter = null;
+var taskManager = null;
 
 var state = {
   auth: {
@@ -21,6 +21,7 @@ var state = {
     access_token_key: conf.auth.access_token_key,
     access_token_secret: conf.auth.access_token_secret
   },
+  stream: null,
   user: null,
   db: null
 };
@@ -45,7 +46,6 @@ function authenticate(){
 
     // If it's only user auth, we don't need a bearer token.
     if(conf.isApplicationAuth) return loadState();
-
 
     // Get a bearer token to be used for application auth.
     var oauth2 = new OAuth2(state.auth.consumer_key, state.auth.consumer_secret, 'https://api.twitter.com/', null, 'oauth2/token', null);
@@ -94,12 +94,25 @@ function handleTweetStream(tweet){
 function startBot(){
   // Setup a schedule based task manager.
   taskManager = new TaskManager(twitter, state);
+  taskManager.start();
 
   return twitter.stream('statuses/filter', {track: conf.trackingKeywords.join(',')}).then(function(stream){
     logger.info('Opened stream. Tracking', conf.trackingKeywords);
-    stream.on('data', handleTweetStream);
-    stream.on('error', logger.error);
+    state.stream = stream;
+    state.stream.on('data', handleTweetStream);
+    state.stream.on('error', logger.error);
   });
+}
+
+function stopBot(){
+  if(state.stream){
+    delete state.stream;
+  }
+  if(taskManager){
+    taskManager.stop();
+  }
+  logger.info('Shutting down.');
+  process.exit(0);
 }
 
 fs.ensureDirAsync(conf.dataDir)
@@ -109,3 +122,15 @@ fs.ensureDirAsync(conf.dataDir)
   logger.info('Bot Started.');
 })
 .catch(logger.error);
+
+if(conf.autoShutdown){
+  conf.autoShutdown = parseInt(conf.autoShutdown);
+  if(!isNaN(conf.autoShutdown)){
+    logger.info('Auto shutdown set to', conf.autoShutdown.toString(), 'minutes.');
+    setTimeout(function(){
+      stopBot();
+    }, conf.autoShutdown * 60 * 1000);
+  }
+}
+
+process.on('SIGINT', stopBot)
