@@ -36,14 +36,23 @@ module.exports = {
     likes: 25
   },
 
-  // Simple string matches ran against the Twitter user object.
-  // Any property can be added for equals comparison. The bot wont follow if there isn't a match.
-  // Bot wont follow if there isn't a match. Arrays will try and make at least one match.
-  constraints: {
+  // Simple string matches ran against the Twitter objects (user/tweet).
+  // Bot will ignore any tweets/users that don't match.
+  // Arrays will try and make at least one match, and null or undefined will match all.
+  userConstraints: {
     lang: ['en'], //can be left null or empty for all.
     location: null,
     protected: false,
-    verified: false
+    verified: null
+  },
+  tweetConstraints: {
+    source: [
+      // An example that only allows the standard clients, no API's or 3rd party apps.
+
+      //'<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>',
+      //'<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
+      //'<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>'
+    ]
   },
 
   // Normally leave this. The directory where data is stored.

@@ -40,18 +40,18 @@ function authenticate(){
   return new Promise(function(resolve, reject){
 
     var loadState = function(){
+      logger.info('Authenticated');
       twitter = new Twitter(state.auth);
       loadUser().then(resolve).catch(reject);
     };
 
-    // If it's only user auth, we don't need a bearer token.
-    if(conf.isApplicationAuth) return loadState();
+    // If it's only user auth, we don't need a bearer token and can skip the next part.
+    if(!conf.isApplicationAuth) return loadState();
 
     // Get a bearer token to be used for application auth.
     var oauth2 = new OAuth2(state.auth.consumer_key, state.auth.consumer_secret, 'https://api.twitter.com/', null, 'oauth2/token', null);
     oauth2.getOAuthAccessToken('', {'grant_type': 'client_credentials'}, function (err, token) {
       if(token){
-        logger.info('Authenticated');
         state.auth.bearer_token = token;
         return loadState();
       }else{
@@ -68,7 +68,12 @@ function handleTweetStream(tweet){
     return logger.error('Malformed tweet received, value', tweet);
   }
 
-  logger.info('Handling tweet', tweet.id_str);
+  if(logic.shouldHandleTweet(tweet)){
+    return;
+  }else{
+    logger.info('Handling tweet', tweet.id_str);
+  }
+
   if(logic.shouldFollow(tweet.user, state)){
 
     if(state.db('shouldFollows').size() >= 150){
