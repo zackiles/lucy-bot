@@ -1,6 +1,6 @@
 {
   "name": "lucy-bot",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Twitter topic bot made to gain followers.",
   "main": "index.js",
   "scripts": {

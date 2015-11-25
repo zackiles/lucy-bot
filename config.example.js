@@ -50,6 +50,7 @@ module.exports = {
       // An example that only allows the standard clients, no API's or 3rd party apps.
 
       //'<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>',
+      //'<a href="https://mobile.twitter.com" rel="nofollow">Mobile Web (M2)</a>',
       //'<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
       //'<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>'
     ]
