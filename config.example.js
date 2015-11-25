@@ -4,6 +4,12 @@ var path = require('path');
 if (typeof process.env.NODE_ENV === 'undefined') process.env.NODE_ENV = 'development';
 
 module.exports = {
+  // Minutes to automatically shut down. You could let it run forever
+  // and it should be fine, but setting it for an hour helps to conserve memory/cpu.
+  // A value of more than 60 (an hour) is recommended if you set this to allow
+  // time for followers to be added as they are not added instantly.
+  autoShutdown: null,
+
   // You can find this info on your Twitter developer console under your application settings.
   auth: {
     consumer_key: '',

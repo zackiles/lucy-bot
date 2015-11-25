@@ -46,7 +46,6 @@ function authenticate(){
     // If it's only user auth, we don't need a bearer token.
     if(conf.isApplicationAuth) return loadState();
 
-
     // Get a bearer token to be used for application auth.
     var oauth2 = new OAuth2(state.auth.consumer_key, state.auth.consumer_secret, 'https://api.twitter.com/', null, 'oauth2/token', null);
     oauth2.getOAuthAccessToken('', {'grant_type': 'client_credentials'}, function (err, token) {
@@ -109,3 +108,13 @@ fs.ensureDirAsync(conf.dataDir)
   logger.info('Bot Started.');
 })
 .catch(logger.error);
+
+if(conf.autoShutdown){
+  conf.autoShutdown = parseInt(conf.autoShutdown);
+  if(!isNaN(conf.autoShutdown)){
+    setTimeout(function(){
+      logger.info('Auto shutting down. Shutdown set to', conf.autoShutdown.toString(), 'minutes.');
+      process.exit(0);
+    }, conf.autoShutdown * 60 * 1000);
+  }
+}
