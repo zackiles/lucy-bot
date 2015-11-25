@@ -1,0 +1,32 @@
+{
+  "name": "lucy-bot",
+  "version": "0.0.1",
+  "description": "Twitter topic bot made to gain followers.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "lucy"
+  ],
+  "author": "Zachary Iles <zack.iles@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "fs-extra-promise": "^0.3.1",
+    "jitter-time": "^1.0.0",
+    "limiter": "^1.1.0",
+    "lodash": "^3.10.1",
+    "lowdb": "^0.10.2",
+    "moment": "^2.10.6",
+    "node-schedule": "^0.5.1",
+    "oauth": "^0.9.14",
+    "percent": "^1.1.1",
+    "promise-throttle": "^0.2.0",
+    "stack-trace": "0.0.9",
+    "twitter": "^1.2.5",
+    "winston": "^2.1.1"
+  }
+}
