@@ -1,6 +1,7 @@
 'use-strict';
 
 var conf = require('./config'),
+    pkg = require('./package.json'),
     logger = require('./lib/logger'),
     logic = require('./lib/logic'),
     TaskManager = require('./lib/task-manager'),
@@ -9,6 +10,7 @@ var conf = require('./config'),
     lowDB = require('lowdb'),
     fs = require('fs-extra-promise'),
     path = require('path'),
+    _ = require('lodash'),
     OAuth2 = require('oauth').OAuth2;
 
 var twitter = null;
@@ -26,6 +28,18 @@ var state = {
   db: null
 };
 
+if(conf.autoShutdown){
+  conf.autoShutdown = parseInt(conf.autoShutdown);
+  if(!isNaN(conf.autoShutdown)){
+    logger.info('Auto shutdown set to', conf.autoShutdown.toString(), 'minutes.');
+    setTimeout(function(){
+      stopBot();
+    }, conf.autoShutdown * 60 * 1000);
+  }
+}
+
+process.on('SIGINT', stopBot);
+
 function loadUser(){
   return twitter.get('account/verify_credentials').then(function(results){
     var userDBPath = path.join(conf.dataDir, results.id_str + '.json');
@@ -36,12 +50,48 @@ function loadUser(){
   });
 }
 
+function loadFollowers(){
+  var results = [];
+  var fetchPage = function(cursor){
+    var opts = {
+      user_id: state.user.id_str,
+      stringify_ids: true,
+      count: 5000
+    };
+    if(cursor) opts.cursor = cursor;
+    return twitter.get('followers/ids', opts).then(function(data){
+      results = results.concat(data.ids);
+      if(data.next_cursor && data.next_cursor !== 0){
+        return fetchPage(data.next_cursor_str);
+      }else{
+        results.forEach(function(v){
+          if(!state.db('followers').find({id_str: v})){
+            state.db('followers').push({id_str: v});
+          }
+        });
+        logger.info('Loaded', results.length || 0, 'followers.');
+        return Promise.resolve();
+      }
+    });
+  };
+
+  return fetchPage();
+}
+
 function authenticate(){
   return new Promise(function(resolve, reject){
-
     var loadState = function(){
       logger.info('Authenticated');
-      twitter = new Twitter(state.auth);
+      var opts = _.assign({
+        request_options: {
+          headers: {
+            'Accept': '*/*',
+            'Connection': 'close',
+            'User-Agent': 'lucy/' + pkg.version
+          }
+        }
+      }, state.auth);
+      twitter = new Twitter(opts);
       loadUser().then(resolve).catch(reject);
     };
 
@@ -55,14 +105,13 @@ function authenticate(){
         state.auth.bearer_token = token;
         return loadState();
       }else{
-        reject(err || new Error('Twitter: Authentication failed.'));
+        reject(err || new Error('Authentication failed.'));
       }
     });
   });
 }
 
 function handleTweetStream(tweet){
-
   if(!tweet || !tweet.id_str){
     // Seems to be a rare case, but it happens, probably something wrong with npm twitter.
     return logger.error('Malformed tweet received, value', tweet);
@@ -122,20 +171,9 @@ function stopBot(){
 
 fs.ensureDirAsync(conf.dataDir)
 .then(authenticate)
+.then(loadFollowers)
 .then(startBot)
 .then(function(){
   logger.info('Bot Started.');
 })
 .catch(logger.error);
-
-if(conf.autoShutdown){
-  conf.autoShutdown = parseInt(conf.autoShutdown);
-  if(!isNaN(conf.autoShutdown)){
-    logger.info('Auto shutdown set to', conf.autoShutdown.toString(), 'minutes.');
-    setTimeout(function(){
-      stopBot();
-    }, conf.autoShutdown * 60 * 1000);
-  }
-}
-
-process.on('SIGINT', stopBot)

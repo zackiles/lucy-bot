@@ -40,7 +40,7 @@ module.exports = {
   // Bot will ignore any tweets/users that don't match.
   // Arrays will try and make at least one match, and null or undefined will match all.
   userConstraints: {
-    lang: ['en'], //can be left null or empty for all.
+    lang: ['en', 'en-gb'],
     location: null,
     protected: false,
     verified: null
@@ -51,6 +51,8 @@ module.exports = {
 
       //'<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>',
       //'<a href="https://mobile.twitter.com" rel="nofollow">Mobile Web (M2)</a>',
+      //'<a href="http://www.twitter.com" rel="nofollow">Twitter for Windows Phone</a>',
+      //'<a href="http://www.twitter.com" rel="nofollow">Twitter for Windows</a>',
       //'<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
       //'<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>'
     ]

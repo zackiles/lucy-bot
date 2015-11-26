@@ -6,9 +6,13 @@ A smart Twitter bot that builds followers for Node.js. Uses only a filesystem da
 ## How To Use
 - Git clone the repository and run npm install.
 - Edit config.example.js with your preferred settings, then rename it to config.js.
-- Set NODE_ENV to 'production' and Run index.js. You can leave it on 24/7 or you can run it as a cron script and kill it after a few hours everyday. It will respect common Twitter API and secret limits.
+- Set NODE_ENV to 'production' and Run index.js.
 
-You can run it with NODE_ENV as 'development' (default) and it will simulate the bots functions and print it's results to console for testing.
+## Notes
+- Depending on your settings it may need to run an average of an hour or more to make the most impact each day.
+- You can leave it on 24/7 or you can run it as a daily cron script and set autoShutdown in the bot configuration to kill it after some time.
+- No matter how long you run Lucy Bot, it will respect common Twitter API and secret limits.
+- You can run it with NODE_ENV as 'development' (default) and it will simulate the bots functions and print it's results to console for testing. It will not add followers, tweet or make any other interactions in development.
 
 #### Helpful Links
 - [A Machine Learning Approach to Twitter User Classification](http://www.cs.wm.edu/~hnw/paper/tdsc12b.pdf)
