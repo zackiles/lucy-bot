@@ -42,7 +42,7 @@ process.on('SIGINT', stopBot);
 
 function loadUser(){
   return twitter.get('account/verify_credentials').then(function(results){
-    var userDBPath = path.join(conf.dataDir, results.id_str + '.json');
+    var userDBPath = path.join(conf.dataDir, results.id_str + '-' + conf.env + '.json');
     state.db = lowDB(userDBPath);
     state.user = results;
     logger.info('Lodaded database for user', results.screen_name);
@@ -61,7 +61,7 @@ function loadFollowers(){
     if(cursor) opts.cursor = cursor;
     return twitter.get('followers/ids', opts).then(function(data){
       results = results.concat(data.ids);
-      if(data.next_cursor && data.next_cursor !== 0){
+      if(data.next_cursor && data.next_cursor != 0){
         return fetchPage(data.next_cursor_str);
       }else{
         results.forEach(function(v){
