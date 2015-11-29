@@ -50,6 +50,34 @@ function loadUser(){
   });
 }
 
+function loadFriends(){
+  var results = [];
+  var fetchPage = function(cursor){
+    var opts = {
+      user_id: state.user.id_str,
+      stringify_ids: true,
+      count: 5000
+    };
+    if(cursor) opts.cursor = cursor;
+    return twitter.get('friends/ids', opts).then(function(data){
+      results = results.concat(data.ids);
+      if(data.next_cursor && data.next_cursor != 0){
+        return fetchPage(data.next_cursor_str);
+      }else{
+        results.forEach(function(v){
+          if(!state.db('friends').find({id_str: v})){
+            state.db('friends').push({id_str: v});
+          }
+        });
+        logger.info('Loaded', results.length || 0, 'friends.');
+        return Promise.resolve();
+      }
+    });
+  };
+
+  return fetchPage();
+}
+
 function loadFollowers(){
   var results = [];
   var fetchPage = function(cursor){
@@ -173,6 +201,7 @@ function stopBot(){
 fs.ensureDirAsync(conf.dataDir)
 .then(authenticate)
 .then(loadFollowers)
+.then(loadFriends)
 .then(startBot)
 .then(function(){
   logger.info('Bot Started.');
