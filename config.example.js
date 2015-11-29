@@ -50,7 +50,9 @@ module.exports = {
       // An example that only allows the standard clients, no API's or 3rd party apps.
 
       //'<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>',
+      //'<a href="https://mobile.twitter.com" rel="nofollow">Mobile Web (M5)</a>',
       //'<a href="https://mobile.twitter.com" rel="nofollow">Mobile Web (M2)</a>',
+      //'<a href=\"http://twitter.com/#!/download/ipad\" rel=\"nofollow\">Twitter for iPad</a>',
       //'<a href="http://www.twitter.com" rel="nofollow">Twitter for Windows Phone</a>',
       //'<a href="http://www.twitter.com" rel="nofollow">Twitter for Windows</a>',
       //'<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
@@ -58,7 +60,8 @@ module.exports = {
     ]
   },
 
-  // Normally leave this. The directory where data is stored.
+  // Normally don't change blow.
   dataDir: path.join(__dirname, '/data'),
+  logsDir: path.join(__dirname, '/logs'),
   env: process.env.NODE_ENV
 };

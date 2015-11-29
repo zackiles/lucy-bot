@@ -113,8 +113,9 @@ function authenticate(){
 
 function handleTweetStream(tweet){
   if(!tweet || !tweet.id_str){
-    // Seems to be a rare case, but it happens, probably something wrong with npm twitter.
-    return logger.error('Malformed tweet received, value', tweet);
+    // Not a tweet, probably another type of stream message.
+    // See https://dev.twitter.com/streaming/overview/messages-types
+    return;
   }
 
   if(logic.shouldHandleTweet(tweet)){
@@ -140,7 +141,7 @@ function handleTweetStream(tweet){
     tweet.user.addedOn = new Date().toISOString();
     state.db('shouldFollows').push(tweet.user);
 
-    logger.info('Added follow task to queue for user', tweet.user.screen_name);
+    logger.info('Added follow task to queue for user', tweet.user.id_str);
     logger.info('Follows queued', state.db('shouldFollows').size());
   }
 }
